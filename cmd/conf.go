@@ -20,23 +20,27 @@ type conf struct {
 func newConf() *conf {
 	getwd, err := os.Getwd()
 	if err != nil {
-		fmt.Printf("加载本地配置失败: %s", err.Error())
+		fmt.Printf("加载本地配置失败: %s\n", err.Error())
 		os.Exit(1)
 	}
 	dir := path.Join(getwd, ".skrctl")
 	c := conf{workDir: dir}
 	stat, err := os.Stat(dir)
 	if err != nil {
-		fmt.Printf("加载本地配置失败: %s", err.Error())
+		if os.IsNotExist(err) {
+			fmt.Println("未执行'skrctl init'")
+			os.Exit(1)
+		}
+		fmt.Printf("加载本地配置失败: %s\n", err.Error())
 		os.Exit(1)
 	}
 	if !stat.IsDir() {
-		fmt.Println("请先执行 'skrclt init'")
+		fmt.Println("配置文件不合法")
 		os.Exit(1)
 	}
 	files, err := ioutil.ReadDir(dir)
 	if err != nil {
-		fmt.Printf("加载本地配置失败: %s", err.Error())
+		fmt.Printf("加载本地配置失败: %s\n", err.Error())
 		os.Exit(1)
 	}
 	for _, file := range files {

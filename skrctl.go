@@ -1,14 +1,17 @@
 package main
 
 import (
+	"bytes"
+	"html/template"
+	"runtime"
+	"strings"
+
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 
 	"github.com/skrbox/skrctl/cmd"
 )
 
 var (
-	// init
-	cmdInit = kingpin.Command("init", "初始化skrctl配置")
 	// add
 	cmdAdd     = kingpin.Command("add", "将服务进行接管")
 	cmdAddList = cmdAdd.Arg("service files", "服务描述文件").ExistingFiles()
@@ -48,15 +51,44 @@ var (
 	cmdDisableList = cmdDisable.Arg("service", "服务名").Strings()
 )
 
+var (
+	version  string
+	branch   string
+	commitId string
+	buildAt  string
+)
+
+func Version() string {
+	tmpl := `
+skrctl, version {{.version}} (branch: {{.branch}}, revision: {{.revision}})
+  build date:       {{.buildDate}}
+  go version:       {{.goVersion}}
+  platform:         {{.platform}}
+`
+	m := map[string]string{
+		"version":   version,
+		"revision":  commitId,
+		"branch":    branch,
+		"buildDate": buildAt,
+		"goVersion": runtime.Version(),
+		"platform":  runtime.GOOS + "/" + runtime.GOARCH,
+	}
+	t := template.Must(template.New("version").Parse(tmpl))
+
+	var buf bytes.Buffer
+	if err := t.ExecuteTemplate(&buf, "version", m); err != nil {
+		panic(err)
+	}
+	return strings.TrimSpace(buf.String())
+}
+
 func init() {
-	kingpin.Version("v0.1.0-beta").VersionFlag.Short('v')
+	kingpin.Version(Version()).VersionFlag.Short('v')
 	kingpin.HelpFlag.Short('h')
 }
 
 func main() {
 	switch kingpin.Parse() {
-	case cmdInit.FullCommand():
-		cmd.Init()
 	case cmdAdd.FullCommand():
 		cmd.Add(cmd.Args(cmdAddList)...)
 	case cmdRemove.FullCommand():

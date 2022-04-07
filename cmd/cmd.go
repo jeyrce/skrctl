@@ -101,10 +101,10 @@ func mv(src, dst string) error {
 }
 
 // 初始化项目 .skrctl 配置目录
-func Init() {
+func init() {
 	cwd, err := os.Getwd()
 	if err != nil {
-		fmt.Printf("初始化失败: %s", err.Error())
+		fmt.Printf("初始化失败: %s\n", err.Error())
 		return
 	}
 	dir := path.Join(cwd, ".skrctl")
@@ -116,16 +116,15 @@ func Init() {
 				return
 			}
 		}
-		fmt.Printf("初始化失败: %s", err.Error())
+		fmt.Printf("初始化失败: %s\n", err.Error())
 		return
 	}
-	fmt.Printf(".skrctl目录或文件已存在")
 }
 
 func Add(services ...string) {
 	for _, s := range services {
 		if err := C.Add(s); err != nil {
-			fmt.Printf("添加%s失败: %s", s, err.Error())
+			fmt.Printf("添加%s失败: %s\n", s, err.Error())
 		}
 	}
 }
@@ -140,7 +139,7 @@ func Remove(force bool, services ...string) {
 			Stop(s)
 			err := os.Remove(path.Join(serviceDir, newService(s, "").FullName()))
 			if err != nil {
-				fmt.Printf("移除%s失败: %s", s, err.Error())
+				fmt.Printf("移除%s失败: %s\n", s, err.Error())
 			}
 		}
 	}
