@@ -1,8 +1,6 @@
 package main
 
 import (
-	"os"
-
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 
 	"github.com/skrbox/skrctl/cmd"
@@ -56,13 +54,9 @@ func init() {
 }
 
 func main() {
-	wd, err := os.Getwd()
-	if err != nil {
-		panic(err)
-	}
 	switch kingpin.Parse() {
 	case cmdInit.FullCommand():
-		cmd.Init(wd)
+		cmd.Init()
 	case cmdAdd.FullCommand():
 		cmd.Add(cmd.Args(cmdAddList)...)
 	case cmdRemove.FullCommand():
