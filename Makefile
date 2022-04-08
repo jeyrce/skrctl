@@ -8,7 +8,7 @@ all: binary
 
 .phony: binary
 binary:
-	CGO_ENABLE=0;go build -ldflags " \
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags " \
 		-X 'github.com/skrbox/skrctl/main.version=${version}' \
 		-X 'github.com/skrbox/skrctl/main.commitId=${commitId}' \
 		-X 'github.com/skrbox/skrctl/main.branch=${branch}' \

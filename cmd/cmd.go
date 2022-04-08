@@ -44,7 +44,7 @@ func Args(ss *[]string) []string {
 	for _, s := range *ss {
 		s = strings.ToLower(s)
 		name := s
-		if strings.HasSuffix(s, ".service") {
+		if strings.HasSuffix(s, ".service") && !strings.Contains(s, "/") {
 			name = s[:len(s)-8]
 		}
 		m[name] = struct{}{}
