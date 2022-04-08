@@ -100,27 +100,6 @@ func mv(src, dst string) error {
 	return os.Rename(src, dst)
 }
 
-// 初始化项目 .skrctl 配置目录
-func init() {
-	cwd, err := os.Getwd()
-	if err != nil {
-		fmt.Printf("初始化失败: %s\n", err.Error())
-		return
-	}
-	dir := path.Join(cwd, ".skrctl")
-	_, err = os.Stat(dir)
-	if err != nil {
-		if os.IsNotExist(err) {
-			err = os.Mkdir(dir, 0755)
-			if err == nil {
-				return
-			}
-		}
-		fmt.Printf("初始化失败: %s\n", err.Error())
-		return
-	}
-}
-
 func Add(services ...string) {
 	for _, s := range services {
 		if err := C.Add(s); err != nil {
@@ -157,6 +136,13 @@ type view struct {
 }
 
 func Status(services ...string) {
+	// 如果传入空，则展示所有已托管服务状态
+	if len(services) < 1 {
+		list := C.List()
+		for _, item := range list {
+			services = append(services, item.Name)
+		}
+	}
 	var views = make([]view, 0, len(services))
 	for _, s := range services {
 		if svc := C.Has(s); svc != nil {
@@ -182,7 +168,7 @@ func Start(services ...string) {
 	for _, s := range services {
 		svc := C.Has(s)
 		if svc == nil {
-			fmt.Printf("启动前需要先加入管理(skrctl add %s)\n", s)
+			fmt.Printf("操作前需要先加入管理(%s)\n", s)
 			continue
 		}
 		svc.Start()
@@ -191,26 +177,33 @@ func Start(services ...string) {
 
 func Stop(services ...string) {
 	for _, s := range services {
-		if svc := C.Has(s); svc != nil {
-			svc.Stop()
+		svc := C.Has(s)
+		if svc == nil {
+			fmt.Printf("操作前需要先加入管理(%s)\n", s)
+			continue
 		}
+		svc.Stop()
 	}
 }
 
 func Enable(services ...string) {
 	for _, s := range services {
-		if svc := C.Has(s); svc != nil {
-			svc.SetAutoStart()
+		svc := C.Has(s)
+		if svc == nil {
+			fmt.Printf("操作前需要先加入管理(%s)\n", s)
+			continue
 		}
+		svc.SetAutoStart()
 	}
-
 }
 
 func Disable(services ...string) {
 	for _, s := range services {
-		if svc := C.Has(s); svc != nil {
-			svc.CloseAutoStart()
+		svc := C.Has(s)
+		if svc == nil {
+			fmt.Printf("操作前需要先加入管理(%s)\n", s)
+			continue
 		}
+		svc.CloseAutoStart()
 	}
-
 }
