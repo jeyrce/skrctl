@@ -1,5 +1,7 @@
 # skrctl
 
+![](https://img.shields.io/github/license/skrbox/skrctl) ![](https://img.shields.io/github/issues/skrbox/skrctl?style=social)
+
 这是一个封装了systemctl的命令行工具，可用于批量管理systemd部署的服务，直接使用 systemctl 命令的缺点:
 
 - systemctl status 字符繁杂，内容难看
