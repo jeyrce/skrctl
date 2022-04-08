@@ -1,0 +1,11 @@
+# 关于systemd的配置
+systemctl: /usr/bin/systemctl
+serviceDir: /usr/lib/systemd/system/
+autoStartDir: /etc/systemd/system/multi-user.target.wants/
+# 需要管理的service列表
+services:
+  - phoenix.service
+  - prometheus.service
+  - dmdb_exporter.service
+  - alertmanager.service
+  - blackbox_exporter.service
