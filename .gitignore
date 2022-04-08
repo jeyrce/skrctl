@@ -23,3 +23,4 @@ _output/
 .idea/
 .DS_Store
 skrctl
+.skrctl/

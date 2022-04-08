@@ -28,8 +28,11 @@ func newConf() *conf {
 	stat, err := os.Stat(dir)
 	if err != nil {
 		if os.IsNotExist(err) {
-			fmt.Println("未执行'skrctl init'")
-			os.Exit(1)
+			if err := os.Mkdir(dir, 0755); err != nil {
+				fmt.Println("初始化配置失败:", err.Error())
+				os.Exit(1)
+			}
+			return &c
 		}
 		fmt.Printf("加载本地配置失败: %s\n", err.Error())
 		os.Exit(1)
