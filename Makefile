@@ -9,8 +9,8 @@ all: binary
 .phony: binary
 binary:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags " \
-		-X 'github.com/skrbox/skrctl/main.version=${version}' \
-		-X 'github.com/skrbox/skrctl/main.commitId=${commitId}' \
-		-X 'github.com/skrbox/skrctl/main.branch=${branch}' \
-		-X 'github.com/skrbox/skrctl/main.buildAt=${buildAt}' \
+		-X 'main.version=${version}' \
+		-X 'main.commitId=${commitId}' \
+		-X 'main.branch=${branch}' \
+		-X 'main.buildAt=${buildAt}' \
 	" -o skrctl .

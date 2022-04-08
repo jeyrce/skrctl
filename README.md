@@ -23,7 +23,7 @@ cd skrctl
 make
 ```
 
-从github下载二进制: [release](.)
+从github下载二进制: [release](https://github.com/skrbox/skrctl/releases)
 
 ### (2) 编写service服务
 
