@@ -7,6 +7,7 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+	"sync"
 )
 
 type conf struct {
@@ -14,6 +15,7 @@ type conf struct {
 	services []*service
 	// 管控目录
 	workDir string
+	locker  *sync.Mutex
 }
 
 // 从本地 .skrctl 目录读取
@@ -24,7 +26,7 @@ func newConf() *conf {
 		os.Exit(1)
 	}
 	dir := path.Join(getwd, ".skrctl")
-	c := conf{workDir: dir}
+	c := conf{workDir: dir, locker: new(sync.Mutex)}
 	stat, err := os.Stat(dir)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -72,6 +74,8 @@ func (c *conf) List() []*service {
 
 // 增加service托管
 func (c *conf) Add(file string) error {
+	c.locker.Lock()
+	defer c.locker.Unlock()
 	if filepath.Ext(file) != ".service" {
 		return fmt.Errorf("必须添加一个合法service文件")
 	}
@@ -96,6 +100,8 @@ func (c *conf) Add(file string) error {
 
 // 移除service托管(只管理本地配置)
 func (c *conf) Remove(name string) {
+	c.locker.Lock()
+	defer c.locker.Unlock()
 	name = strings.TrimSuffix(name, ".service")
 	svc := c.Has(name)
 	if svc == nil {

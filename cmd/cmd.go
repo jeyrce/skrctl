@@ -9,6 +9,7 @@ import (
 	"path"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -101,27 +102,39 @@ func mv(src, dst string) error {
 }
 
 func Add(services ...string) {
+	var wg = sync.WaitGroup{}
 	for _, s := range services {
-		if err := C.Add(s); err != nil {
-			fmt.Printf("添加%s失败: %s\n", s, err.Error())
-		}
+		wg.Add(1)
+		go func(s string) {
+			defer wg.Done()
+			if err := C.Add(s); err != nil {
+				fmt.Printf("添加%s失败: %s\n", s, err.Error())
+			}
+		}(s)
 	}
+	wg.Wait()
 }
 
 func Remove(force bool, services ...string) {
 	if force {
 		yesOrNo("操作将会停止服务并从systemd移除")
 	}
+	var wg = sync.WaitGroup{}
 	for _, s := range services {
-		C.Remove(s)
-		if force {
-			Stop(s)
-			err := os.Remove(path.Join(serviceDir, newService(s, "").FullName()))
-			if err != nil {
-				fmt.Printf("移除%s失败: %s\n", s, err.Error())
+		wg.Add(1)
+		go func(s string) {
+			defer wg.Done()
+			C.Remove(s)
+			if force {
+				Stop(s)
+				err := os.Remove(path.Join(serviceDir, newService(s, "").FullName()))
+				if err != nil {
+					fmt.Printf("移除%s失败: %s\n", s, err.Error())
+				}
 			}
-		}
+		}(s)
 	}
+	wg.Wait()
 }
 
 // status 输出表格
@@ -143,20 +156,28 @@ func Status(services ...string) {
 			services = append(services, item.Name)
 		}
 	}
-	var views = make([]view, 0, len(services))
+	var (
+		views = make([]view, 0, len(services))
+		wg    = sync.WaitGroup{}
+	)
 	for _, s := range services {
 		if svc := C.Has(s); svc != nil {
-			views = append(views, view{
-				Name:      svc.Name,
-				PID:       svc.PID(),
-				Port:      strings.Join(svc.Ports(), ","),
-				Status:    svc.Status(),
-				Time:      svc.TimeDuration(),
-				AutoStart: svc.IsAutoStart(),
-				Version:   svc.Version(),
-			})
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				views = append(views, view{
+					Name:      svc.Name,
+					PID:       svc.PID(),
+					Port:      strings.Join(svc.Ports(), ","),
+					Status:    svc.Status(),
+					Time:      svc.TimeDuration(),
+					AutoStart: svc.IsAutoStart(),
+					Version:   svc.Version(),
+				})
+			}()
 		}
 	}
+	wg.Wait()
 	sort.SliceStable(views, func(i, j int) bool {
 		return views[i].Name < views[j].Name
 	})
@@ -165,45 +186,68 @@ func Status(services ...string) {
 
 // 尝试部署并启动服务
 func Start(services ...string) {
+	var wg = sync.WaitGroup{}
 	for _, s := range services {
-		svc := C.Has(s)
-		if svc == nil {
-			fmt.Printf("操作前需要先加入管理(%s)\n", s)
-			continue
-		}
-		svc.Start()
+		wg.Add(1)
+		go func(s string) {
+			defer wg.Done()
+			svc := C.Has(s)
+			if svc == nil {
+				fmt.Printf("操作前需要先加入管理(%s)\n", s)
+				return
+			}
+			svc.Start()
+		}(s)
 	}
+	wg.Wait()
 }
 
 func Stop(services ...string) {
+	var wg = sync.WaitGroup{}
 	for _, s := range services {
-		svc := C.Has(s)
-		if svc == nil {
-			fmt.Printf("操作前需要先加入管理(%s)\n", s)
-			continue
-		}
-		svc.Stop()
+		wg.Add(1)
+		go func(s string) {
+			svc := C.Has(s)
+			if svc == nil {
+				fmt.Printf("操作前需要先加入管理(%s)\n", s)
+				return
+			}
+			svc.Stop()
+		}(s)
 	}
+	wg.Wait()
 }
 
 func Enable(services ...string) {
+	var wg = sync.WaitGroup{}
 	for _, s := range services {
-		svc := C.Has(s)
-		if svc == nil {
-			fmt.Printf("操作前需要先加入管理(%s)\n", s)
-			continue
-		}
-		svc.SetAutoStart()
+		wg.Add(1)
+		go func(s string) {
+			defer wg.Done()
+			svc := C.Has(s)
+			if svc == nil {
+				fmt.Printf("操作前需要先加入管理(%s)\n", s)
+				return
+			}
+			svc.SetAutoStart()
+		}(s)
 	}
+	wg.Wait()
 }
 
 func Disable(services ...string) {
+	var wg = sync.WaitGroup{}
 	for _, s := range services {
-		svc := C.Has(s)
-		if svc == nil {
-			fmt.Printf("操作前需要先加入管理(%s)\n", s)
-			continue
-		}
-		svc.CloseAutoStart()
+		wg.Add(1)
+		go func(s string) {
+			defer wg.Done()
+			svc := C.Has(s)
+			if svc == nil {
+				fmt.Printf("操作前需要先加入管理(%s)\n", s)
+				return
+			}
+			svc.CloseAutoStart()
+		}(s)
 	}
+	wg.Wait()
 }
