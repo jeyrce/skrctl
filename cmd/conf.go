@@ -14,19 +14,20 @@ type conf struct {
 	// 纳管的服务列表
 	services []*service
 	// 管控目录
-	workDir string
-	locker  *sync.Mutex
+	controlDir string
+	workDir    string
+	locker     *sync.Mutex
 }
 
 // 从本地 .skrctl 目录读取
 func newConf() *conf {
-	getwd, err := os.Getwd()
+	workDir, err := os.Getwd()
 	if err != nil {
 		fmt.Printf("加载本地配置失败: %s\n", err.Error())
 		os.Exit(1)
 	}
-	dir := path.Join(getwd, ".skrctl")
-	c := conf{workDir: dir, locker: new(sync.Mutex)}
+	dir := path.Join(workDir, ".skrctl")
+	c := conf{workDir: workDir, controlDir: dir, locker: new(sync.Mutex)}
 	stat, err := os.Stat(dir)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -115,4 +116,14 @@ func (c *conf) Remove(name string) {
 		}
 	}
 	c.services = append(c.services[:index], c.services[index+1:]...)
+}
+
+// 工作目录
+func (c *conf) WorkDir() string {
+	return c.workDir
+}
+
+// 控制目录
+func (c *conf) ControlDir() string {
+	return c.controlDir
 }
