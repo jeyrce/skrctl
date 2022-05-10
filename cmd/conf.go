@@ -13,10 +13,11 @@ import (
 type conf struct {
 	// 纳管的服务列表
 	services []*service
-	// 管控目录
+	// 管控目录，之后可能有更多用途
 	controlDir string
 	workDir    string
-	locker     *sync.Mutex
+
+	locker *sync.Mutex
 }
 
 // 从本地 .skrctl 目录读取
