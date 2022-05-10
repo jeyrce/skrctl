@@ -179,7 +179,7 @@ func Status(services ...string) {
 	}
 	wg.Wait()
 	if len(views) < 1 {
-		fmt.Printf("请检查工作目录[%s]或执行`skrctl add`将服务进行纳管\n", C.workDir)
+		fmt.Printf("请检查当前目录(%s)是否为工作目录,或执行`skrctl add`将服务进行纳管\n", C.WorkDir())
 		os.Exit(0)
 	}
 	sort.SliceStable(views, func(i, j int) bool {
