@@ -2,7 +2,9 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"html/template"
+	"os"
 	"runtime"
 	"strings"
 
@@ -85,6 +87,10 @@ skrctl, version {{.version}} (branch: {{.branch}}, revision: {{.revision}})
 func init() {
 	kingpin.Version(Version()).VersionFlag.Short('v')
 	kingpin.HelpFlag.Short('h')
+	if os.Getuid() != 0 {
+		fmt.Println("必须使用root用户运行")
+		os.Exit(1)
+	}
 }
 
 func main() {
