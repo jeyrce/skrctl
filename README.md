@@ -15,7 +15,7 @@
 
 ### (1) 下载和安装
 
-从源码安装: make 后可得到一个可执行文件 `skrctl`
+- 从源码安装: make 后可得到一个可执行文件 `skrctl`
 
 ```shell
 git clone https://github.com/skrbox/skrctl.git
@@ -25,7 +25,13 @@ cd skrctl
 make
 ```
 
-从github下载二进制: [release](https://github.com/skrbox/skrctl/releases)
+- 从github下载二进制: [release](https://github.com/skrbox/skrctl/releases)
+
+- 使用go命令安装
+
+```shell
+go install github.com/skrbox/skrctl@lates
+```
 
 ### (2) 编写service服务
 
