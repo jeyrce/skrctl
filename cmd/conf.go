@@ -91,7 +91,7 @@ func (c *conf) Add(file string) error {
 	if c.Has(stat.Name()) != nil {
 		return fmt.Errorf("%s已存在", stat.Name())
 	}
-	expected := path.Join(c.workDir, stat.Name())
+	expected := path.Join(c.controlDir, stat.Name())
 	err = cp(file, expected)
 	if err != nil {
 		return err
