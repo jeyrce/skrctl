@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -10,29 +9,25 @@ import (
 	"sync"
 )
 
+const (
+	WorkDir = "/root/.skrctl"
+)
+
 type conf struct {
 	// 纳管的服务列表
 	services []*service
-	// 管控目录，之后可能有更多用途
-	controlDir string
-	workDir    string
+	workDir  string
 
 	locker *sync.Mutex
 }
 
 // 从本地 .skrctl 目录读取
 func newConf() *conf {
-	workDir, err := os.Getwd()
-	if err != nil {
-		fmt.Printf("加载本地配置失败: %s\n", err.Error())
-		os.Exit(1)
-	}
-	dir := path.Join(workDir, ".skrctl")
-	c := conf{workDir: workDir, controlDir: dir, locker: new(sync.Mutex)}
-	stat, err := os.Stat(dir)
+	c := conf{workDir: WorkDir, locker: new(sync.Mutex)}
+	stat, err := os.Stat(c.workDir)
 	if err != nil {
 		if os.IsNotExist(err) {
-			if err := os.Mkdir(dir, 0755); err != nil {
+			if err := os.Mkdir(c.workDir, 0755); err != nil {
 				fmt.Println("初始化配置失败:", err.Error())
 				os.Exit(1)
 			}
@@ -45,14 +40,14 @@ func newConf() *conf {
 		fmt.Println("配置文件不合法")
 		os.Exit(1)
 	}
-	files, err := ioutil.ReadDir(dir)
+	files, err := os.ReadDir(c.workDir)
 	if err != nil {
 		fmt.Printf("加载本地配置失败: %s\n", err.Error())
 		os.Exit(1)
 	}
 	for _, file := range files {
 		if !file.IsDir() && filepath.Ext(file.Name()) == ".service" {
-			c.services = append(c.services, newService(file.Name(), path.Join(dir, file.Name())))
+			c.services = append(c.services, newService(file.Name(), path.Join(c.workDir, file.Name())))
 		}
 	}
 	return &c
@@ -91,9 +86,8 @@ func (c *conf) Add(file string) error {
 	if c.Has(stat.Name()) != nil {
 		return fmt.Errorf("%s已存在", stat.Name())
 	}
-	expected := path.Join(c.controlDir, stat.Name())
-	err = cp(file, expected)
-	if err != nil {
+	expected := path.Join(c.workDir, stat.Name())
+	if err = cp(file, expected); err != nil {
 		return err
 	}
 	c.services = append(c.services, newService(stat.Name(), expected))
@@ -117,14 +111,4 @@ func (c *conf) Remove(name string) {
 		}
 	}
 	c.services = append(c.services[:index], c.services[index+1:]...)
-}
-
-// 工作目录
-func (c *conf) WorkDir() string {
-	return c.workDir
-}
-
-// 控制目录
-func (c *conf) ControlDir() string {
-	return c.controlDir
 }
