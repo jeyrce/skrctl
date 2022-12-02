@@ -30,7 +30,7 @@ make
 - 使用go命令安装
 
 ```shell
-go install github.com/skrbox/skrctl@lates
+go install github.com/skrbox/skrctl@latest
 ```
 
 ### (2) 编写service服务
