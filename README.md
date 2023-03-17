@@ -1,6 +1,6 @@
 # skrctl
 
-![](https://img.shields.io/github/license/skrbox/skrctl) ![](https://img.shields.io/github/issues/skrbox/skrctl?style=social)
+![](https://img.shields.io/github/license/jeyrce/skrctl) ![](https://img.shields.io/github/issues/jeyrce/skrctl?style=social)
 
 这是一个封装了systemctl的命令行工具，可用于批量管理systemd部署的服务，直接使用 systemctl 命令的缺点:
 
@@ -15,23 +15,24 @@
 
 ### (1) 下载和安装
 
+- 【推荐】使用go命令安装
+
+```shell
+go install github.com/jeyrce/skrctl@latest
+```
+
 - 从源码安装: make 后可得到一个可执行文件 `skrctl`
 
 ```shell
-git clone https://github.com/skrbox/skrctl.git
+git clone https://github.com/jeyrce/skrctl.git
 
 cd skrctl
 
 make
 ```
 
-- 从github下载二进制: [release](https://github.com/skrbox/skrctl/releases)
+- 从github下载二进制: [release](https://github.com/jeyrce/skrctl/releases)
 
-- 使用go命令安装
-
-```shell
-go install github.com/skrbox/skrctl@latest
-```
 
 ### (2) 编写service服务
 

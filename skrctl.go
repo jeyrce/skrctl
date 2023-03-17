@@ -10,7 +10,7 @@ import (
 
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 
-	"github.com/skrbox/skrctl/cmd"
+	"github.com/jeyrce/skrctl/cmd"
 )
 
 var (

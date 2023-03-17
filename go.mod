@@ -1,4 +1,4 @@
-module github.com/skrbox/skrctl
+module github.com/jeyrce/skrctl
 
 go 1.19
 
